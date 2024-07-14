@@ -96,7 +96,9 @@ class LoadVideo:  # for inference
         self.count = 0
 
         self.w, self.h = 1920, 1080
-        print('Lenth of the video: {:d} frames'.format(self.vn))
+        # self.w, self.h = self.width, self.height
+        print('Video size: {:d}x{:d}'.format(self.w, self.h))
+        print('Length of the video: {:d} frames'.format(self.vn))
 
     def get_size(self, vw, vh, dw, dh):
         wa, ha = float(dw) / vw, float(dh) / vh
@@ -113,7 +115,13 @@ class LoadVideo:  # for inference
             raise StopIteration
         # Read image
         res, img0 = self.cap.read()  # BGR
+        # enhance contrast
         assert img0 is not None, 'Failed to load frame {:d}'.format(self.count)
+
+        yuv_image = cv2.cvtColor(img0, cv2.COLOR_BGR2YUV)
+        yuv_image[:, :, 0] = cv2.equalizeHist(yuv_image[:, :, 0])
+        img0 = cv2.cvtColor(yuv_image, cv2.COLOR_YUV2BGR)
+
         img0 = cv2.resize(img0, (self.w, self.h))
 
         # Padded resize

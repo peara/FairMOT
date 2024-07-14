@@ -12,6 +12,8 @@ import motmetrics as mm
 import numpy as np
 import torch
 
+from tqdm.auto import tqdm
+
 from tracker.multitracker import JDETracker
 from tracking_utils import visualization as vis
 from tracking_utils.log import logger
@@ -67,19 +69,22 @@ def write_results_score(filename, results, data_type):
     logger.info('save results to {}'.format(filename))
 
 
-def eval_seq(opt, dataloader, data_type, result_filename, save_dir=None, show_image=True, frame_rate=30, use_cuda=True):
+def eval_seq(opt, dataloader, data_type, result_filename, save_dir=None, show_image=True, frame_rate=30, use_cuda=True, start_frame=0, end_frame=1e5):
     if save_dir:
         mkdir_if_missing(save_dir)
     tracker = JDETracker(opt, frame_rate=frame_rate)
     timer = Timer()
     results = []
-    frame_id = 0
+    frame_id = start_frame
+
     #for path, img, img0 in dataloader:
-    for i, (path, img, img0) in enumerate(dataloader):
+    for i, (path, img, img0) in enumerate(tqdm(dataloader)):
+        if frame_id >= end_frame:
+            break
         #if i % 8 != 0:
             #continue
-        if frame_id % 20 == 0:
-            logger.info('Processing frame {} ({:.2f} fps)'.format(frame_id, 1. / max(1e-5, timer.average_time)))
+        # if frame_id % 20 == 0:
+        #     logger.info('Processing frame {} ({:.2f} fps)'.format(frame_id, 1. / max(1e-5, timer.average_time)))
 
         # run tracking
         timer.tic()
