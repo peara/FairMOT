@@ -94,6 +94,7 @@ def motMetricsEnhancedCalculator(gt, t):
 
 def demo(opt):
     result_root = opt.output_root if opt.output_root != "" else "."
+    print("Output directory set to {}".format(result_root))
     mkdir_if_missing(result_root)
 
     logger.info("Starting tracking...")
@@ -101,10 +102,13 @@ def demo(opt):
     video_filename = osp.split(opt.input_video)[-1]
 
     # ground truth file is in the same folder with _gt.txt extension
+    skip_metrics = False
     gt_filename = video_filename.replace(".mp4", "_gt.txt")
     gt_file = osp.join(osp.split(opt.input_video)[0], gt_filename)
     if not osp.exists(gt_file):
-        raise ValueError("Ground truth file not found: {}".format(gt_file))
+        print("Ground truth file not found.")
+        skip_metrics = True
+        # raise ValueError("Ground truth file not found: {}".format(gt_file))
 
     result_filename = os.path.join(result_root, video_filename.replace(".mp4", "_t.txt"))
 
@@ -112,6 +116,12 @@ def demo(opt):
     video_length = dataloader.__len__()
 
     frame_dir = None if opt.output_format == "text" else osp.join(result_root, "frame")
+    if frame_dir is not None:
+        if osp.exists(frame_dir):
+            print("Removing existing frames in {}".format(frame_dir)
+            os.system("rm {}/*".format(frame_dir))
+        mkdir_if_missing(frame_dir)
+
     eval_seq(
         opt,
         dataloader,
@@ -123,15 +133,16 @@ def demo(opt):
         use_cuda=opt.gpus != [-1],
     )
 
-    # Calculate MOT metrics
-    gt = np.loadtxt(gt_file, delimiter=",")
-    t = np.loadtxt(result_filename, delimiter=",")
+    if skip_metrics == False:
+        # Calculate MOT metrics
+        gt = np.loadtxt(gt_file, delimiter=",")
+        t = np.loadtxt(result_filename, delimiter=",")
 
-    # # rescale because we scale the video to 1920x1080 in the dataloader
-    # t[:, 2] = t[:, 2] / 2
-    # t[:, 4] = t[:, 4] / 2
+        # # rescale because we scale the video to 1920x1080 in the dataloader
+        # t[:, 2] = t[:, 2] / 2
+        # t[:, 4] = t[:, 4] / 2
 
-    motMetricsEnhancedCalculator(gt, t)
+        motMetricsEnhancedCalculator(gt, t)
 
     if opt.output_format == "video":
         output_video_path = osp.join(result_root, video_filename.replace(".mp4", "_result.mp4"))

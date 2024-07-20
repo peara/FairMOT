@@ -42,20 +42,25 @@ There has been remarkable progress on object detection and re-identification in 
 * Clone this repo, and we'll call the directory that you cloned as ${FAIRMOT_ROOT}
 * Install dependencies. We use python 3.8 and pytorch >= 1.7.0
 ```
-conda create -n FairMOT
+conda env create -f environment.yml
 conda activate FairMOT
-conda install pytorch==1.7.0 torchvision==0.8.0 cudatoolkit=10.2 -c pytorch
-cd ${FAIRMOT_ROOT}
-pip install cython
-pip install -r requirements.txt
 ```
 * We use [DCNv2_pytorch_1.7](https://github.com/ifzhang/DCNv2/tree/pytorch_1.7) in our backbone network (pytorch_1.7 branch). Previous versions can be found in [DCNv2](https://github.com/CharlesShang/DCNv2).
 ```
+# using the same environment as FairMOT
 git clone -b pytorch_1.7 https://github.com/ifzhang/DCNv2.git
 cd DCNv2
 ./make.sh
 ```
 * In order to run the code for demos, you also need to install [ffmpeg](https://www.ffmpeg.org/).
+
+## Demo
+You can input a raw video and get the demo video by running src/demo.py and get the mp4 format of the demo video:
+```
+python demo.py mot --load_model ../models/fairmot_dla34.pth --conf_thres 0.4
+```
+You can change --input-video and --output-root to get the demos of your own videos.
+--conf_thres can be set from 0.3 to 0.7 depending on your own videos.
 
 ## Data preparation
 
@@ -226,15 +231,6 @@ python track.py mot --test_mot15 True --load_model your_mot15_model.pth --conf_t
 python track.py mot --test_mot20 True --load_model your_mot20_model.pth --conf_thres 0.3
 ```
 Results of the test set all need to be evaluated on the MOT challenge server. You can see the tracking results on the training set by setting --val_motxx True and run the tracking code. We set 'conf_thres' 0.4 for MOT16 and MOT17. We set 'conf_thres' 0.3 for 2DMOT15 and MOT20. 
-
-## Demo
-You can input a raw video and get the demo video by running src/demo.py and get the mp4 format of the demo video:
-```
-cd src
-python demo.py mot --load_model ../models/fairmot_dla34.pth --conf_thres 0.4
-```
-You can change --input-video and --output-root to get the demos of your own videos.
---conf_thres can be set from 0.3 to 0.7 depending on your own videos.
 
 ## Train on custom dataset
 You can train FairMOT on custom dataset by following several steps bellow:

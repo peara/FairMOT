@@ -118,9 +118,9 @@ class LoadVideo:  # for inference
         # enhance contrast
         assert img0 is not None, 'Failed to load frame {:d}'.format(self.count)
 
-        yuv_image = cv2.cvtColor(img0, cv2.COLOR_BGR2YUV)
-        yuv_image[:, :, 0] = cv2.equalizeHist(yuv_image[:, :, 0])
-        img0 = cv2.cvtColor(yuv_image, cv2.COLOR_YUV2BGR)
+        # yuv_image = cv2.cvtColor(img0, cv2.COLOR_BGR2YUV)
+        # yuv_image[:, :, 0] = cv2.equalizeHist(yuv_image[:, :, 0])
+        # img0 = cv2.cvtColor(yuv_image, cv2.COLOR_YUV2BGR)
 
         img0 = cv2.resize(img0, (self.w, self.h))
 
